@@ -1,34 +1,43 @@
 'use strict'
-let current = 1
+let current = 2
 // 1:X  2:O  0:blank
 const patterns = [
-    [0, 2, 0],
-    [0, 1, 0],
-    [0, 0, 0],
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0,
 ]
 
 const show = () => {
     const wrapper = document.getElementById('wrapper')
     wrapper.innerHTML = ''
-    for (let i in patterns) {
-        for (let j in patterns[i]) {
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
             const div = document.createElement('div')
             div.classList.add('item')
-            div.onclick = function (e) {
-                if (this.textContent) {
-                    return false
-                }
-                move(i, j)
-            }
+            div.addEventListener('click', () => {
+                userMove(i, j)
+            })
+            div.innerText =
+                patterns[i * 3 + j] === 2 ? 'O' :
+                    patterns[i * 3 + j] === 1 ? 'X' : ''
             wrapper.appendChild(div)
-            div.textContent =
-                patterns[i][j] === 2 ? 'O' :
-                    patterns[i][j] === 1 ? 'X' : ''
         }
     }
 }
-const move = (x, y) => {
-    patterns[x][y] = current
+
+const computerMove = () => {
+    const res = bestChoice(patterns, current)
+    console.log(res)
+    if (res.point)
+        patterns[res.point[0] * 3 + res.point[1]] = current
+    if (check(patterns, current))
+        alert(`${current === 1 ? 'X' : 'O'} win`)
+    current = 3 - current
+    show()
+}
+
+const userMove = (x, y) => {
+    patterns[x * 3 + y] = current
     if (check(patterns, current)) {
         alert(`${current === 1 ? 'X' : 'O'} win`)
     }
@@ -37,11 +46,12 @@ const move = (x, y) => {
     if (willWin(patterns, current)) {
         console.log(current === 2 ? 'O will win' : 'X will win')
     }
+    computerMove()
 }
-
+//寻找最优策略
 const bestChoice = (patterns, current) => {
     let p
-    if(p = willWin(patterns, current)){
+    if (p = willWin(patterns, current)) {
         return {
             point: p,
             result: 1
@@ -51,47 +61,53 @@ const bestChoice = (patterns, current) => {
     let point = null
     let result = -2
 
-    for (let i = 0; i < 3; i++) {
+    outer:for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-            if (patterns[i][j])
+            if (patterns[i * 3 + j] !==0)
                 continue;
             const tmp = clone(patterns)
-            tmp[i][j] = current
-            let r = bestChoice(tmp, 3 - current).result
-            if (-r > result) {
-                result = -r
+            tmp[i * 3 + j] = current
+            let r = bestChoice(tmp, 3 - current)
+            if (-r.result >= result) {  // 对方对差的情况就是我们最好的情况
+                result = -r.result
                 point = [i, j]
             }
+
+            if (Number(result) === 1)
+                break outer
+
         }
     }
+    // console.log(point, result)
     return {
         point,
         result: point ? result : 0
     }
 }
 
-const clone = (data) => JSON.parse(JSON.stringify(data))
-
+// const clone = (data) => JSON.parse(JSON.stringify(data))
+const clone = (data) => Object.create(data)
+//判断是否将要赢
 const willWin = (patterns, current) => {
-    for (let i in patterns) {
-        for (let j in patterns[i]) {
-            if (patterns[i][j])
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (patterns[i * 3 + j])
                 continue
             const tmp = clone(patterns)
-            tmp[i][j] = current
+            tmp[i * 3 + j] = current
             if (check(tmp, current)) {
-                return [i, j]
+                return [i , j]
             }
         }
     }
     return null
 }
-
+//判断是否赢
 const check = (patterns, current) => {
-    for (let i in patterns) { //判断行
+    for (let i = 0; i < 3; i++) { //判断行
         let win = true
-        for (let j in patterns[i]) {
-            if (patterns[i][j] !== current) {
+        for (let j = 0; j < 3; j++) {
+            if (patterns[i * 3 + j] !== current) {
                 win = false
             }
         }
@@ -99,10 +115,10 @@ const check = (patterns, current) => {
             return true
     }
     {
-        for (let i in patterns) { //判断行
+        for (let i = 0; i < 3; i++) { //判断行
             let win = true
-            for (let j in patterns[i]) {
-                if (patterns[j][i] !== current) {
+            for (let j = 0; j < 3; j++) {
+                if (patterns[j * 3 + i] !== current) {
                     win = false
                 }
             }
@@ -113,7 +129,7 @@ const check = (patterns, current) => {
     {
         let win = true
         for (let j = 0; j < 3; j++) {
-            if (patterns[j][j] !== current)
+            if (patterns[j * 3 + j] !== current)
                 win = false
         }
         if (win)
@@ -122,7 +138,7 @@ const check = (patterns, current) => {
     {
         let win = true
         for (let j = 0; j < 3; j++) {
-            if (patterns[j][2 - j] !== current)
+            if (patterns[j * 2 + 2] !== current)
                 win = false
         }
         if (win)
@@ -132,4 +148,3 @@ const check = (patterns, current) => {
 }
 
 show()
-console.log(bestChoice(patterns,current))
