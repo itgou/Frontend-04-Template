@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .wrapper {
+        width: 400px;
+        margin: 300px auto;
+    }
+
+    .light {
+        display: inline-block;
+        margin: 10px;
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
+    }
+
+    .green {
+        background: green;
+        opacity: 0.3;
+    }
+
+    .yellow {
+        background: yellow;
+        opacity: 0.3;
+    }
+
+    .red {
+        background: red;
+        opacity: 0.3;
+    }
+</style>
+<body>
+<div class="wrapper">
+    <div class="green light"></div>
+    <div class="yellow light"></div>
+    <div class="red light"></div>
+</div>
+</body>
+<script>
+    const redLight = document.getElementsByClassName('red')[0]
+    const yellowLight = document.getElementsByClassName('yellow')[0]
+    const greenLight = document.getElementsByClassName('green')[0]
+
+    const reset = () => {
+        redLight.style.opacity = '0.3'
+        yellowLight.style.opacity = '0.3'
+        greenLight.style.opacity = '0.3'
+    }
+    const green = () => {
+        reset()
+        greenLight.style.opacity = '1'
+    }
+    const yellow = () => {
+        reset()
+        yellowLight.style.opacity = '1'
+    }
+    const red = () => {
+        reset()
+        redLight.style.opacity = '1'
+    }
+
+    const sleep = async time => {
+        return new Promise((res, rej) => {
+            setTimeout(res, time)
+        })
+    }
+    // const go = async () => {
+    //     green()
+    //     await sleep(2000)
+    //     yellow()
+    //     await sleep(2000)
+    //     red()
+    //     await sleep(3000)
+    //     go()
+    // }
+    // go()
+    const go = async () => {
+        while (true) {
+            green()
+            await sleep(2000)
+            yellow()
+            await sleep(2000)
+            red()
+            await sleep(3000)
+        }
+    }
+    go()
+</script>
+</html>
