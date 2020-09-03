@@ -82,13 +82,9 @@
         })
     }
 
-
     const findPath = async (map, start, end) => {
         let preTable = Object.create(map)
-        let queue = new SortedData([start], (a, b) => distance(a) - distance(b))
-        const distance = (point) => {
-            return (point[0] - end[0]) ** 2 + (point[1] - end[1]) ** 2
-        }
+        let queue = [start]
         const insert = async (x, y, pre) => {
             if (x < 0 || x > 100 || y < 0 || y > 100) {
                 return
@@ -96,17 +92,15 @@
             if (preTable[100 * x + y]) {
                 return
             }
-            await sleep(1)
+            // await sleep(1)
             if (container.children[x * 100 + y]) {
                 container.children[x * 100 + y].style.backgroundColor = 'lightgreen'
             }
             preTable[100 * x + y] = pre
-            // queue.push([x, y])
-            queue.give([x, y])
+            queue.push([x, y])
         }
         while (queue.length) {
-            // let [x, y] = queue.shift()
-            let [x, y] = queue.take()
+            let [x, y] = queue.shift()
             if (x === end[0] && y === end[1]) {
                 let path = []
                 while (x !== start[0] || y !== start[1]) {
@@ -132,37 +126,6 @@
     }
     show(map);
     console.log(container.children)
-
-    class SortedData {
-        constructor(data, compare) {
-            this.data = data.slice() || []
-            this.compare = compare || ((a, b) => a - b);
-        }
-
-        get length() {
-            return this.data.length
-        }
-
-        take() {
-            if (!this.data.length)
-                return void 0;
-            let minIndex = 0, min = this.data[minIndex]
-            for (let i = 1; i < this.data.length; i++) {
-                if (this.compare(min, this.data[i]) > 0) {
-                    min = this.data[i]
-                    minIndex = i
-                }
-            }
-            this.data[minIndex] = this.data[this.data.length - 1]
-            this.data.pop()
-            return min
-        }
-
-        give(item) {
-            this.data.push(item)
-        }
-    }
-
 
 </script>
 </html>
